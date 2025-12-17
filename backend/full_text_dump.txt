@@ -1,0 +1,114 @@
+Course CSE330 Computer Semester Winter Semester 2026
+Networks
+Faculty Name(s) Susanta Tewari Contact susanta.tewari@ahduni.edu.in
+School SAS Credits 3
+GER Category: Not Applicable Teaching Pedagogy P/NP Course: Can not be taken as P/NP
+Enable:NO
+Schedule
+Section 1 02:30 pm to 04:00 pm Thu 05-01-26 to 19-04-26
+02:30 pm to 04:00 pm Tue 05-01-26 to 19-04-26
+Prerequisite CSC100 Introduction to Computer Programming
+OR
+CSE100 Fundamentals of Computer Programming
+OR
+ENR106 Introduction to Programming
+Antirequisite Not Applicable
+Corequisite Not Applicable
+Course Description This is a first course on computer networks.The course will introduce the fundamentals of computer
+networking and a number of protocols. The course introduces the layered protocol architecture
+concept and discusses physical, data link, network, transport and application layers. It describes the
+functionalities of these layers as well as the main protocols pertaining to these layers. The course
+emphasizes the architecture and protocols used in the Internet. It also introduces wireless networks,
+cloud computing, Internet of Things, network security and software defined networking. The
+programming component will be covered in a companion laboratory course
+Course Objectives Knowledge of how computer networks are designed and operated
+Knowledge of the architecture of the Internet and its protocols
+Learning Outcomes After studying this course, the students will be able to
+understand the design issues of computer networks and appreciate layered architecture and
+protocol design
+use appropriate tools for designing and implementing networked systems
+design network applications
+Pedagogy Lectures, demonstrations and interactions
+Expectation From Expectations from students:
+Students
+1. Read the relevant portions of the textbook about the topic at hand for every session
+beforehand.
+2. Take notes.
+3. If a session is missed, take assistance of a fellow student to know the missed materials
+before attending the next session.
+Assessment/Evaluation Mid-Semester Examination:
+Mid Sem Examiniation - 30%
+End Semester Examination:
+Final exam - 40%
+Other Components:
+Quiz - 30%
+Attendance Policy As per Ahmedabad University Policy.
+80% attendance is compulsory for course evaluation
+Project / Assignment Quizzes (2): 30%
+Details Mid semester examination: 30%
+End semester examination: 40%
+Make-up evaluation is NOT allowed for any component.
+Course Material Text Book(s)
+Computer Networks: A Systems Approach, Peterson and Davie, Fifth Edition, MK,
+Other Course Material
+Unix Network Programming, Vol. 1: The Sockets Networking API, Stevens, Fenner and Rudoff,
+3rd edition, Addison-Wesley Professional, 2003
+,
+Additional Information
+Session Plan
+NO TOPIC TITLE TOPIC & SUBTOPIC DETAILS READINGS,CASES,ETC. ACTIVITIES IMPORTA
+. NT DATES
+1 Introduction, C N/A 1.1-1.2 N/A
+review
+2 Network N/A 1.3-1.4 N/A
+architecture,
+Sockets
+3 Performance, N/A 1.5, Chap 7 N/A
+Multimedia data
+4 Physical layer, N/A 2.1-2.2 N/A
+bit encoding
+5 Framing, error N/A 2.3-2.4 N/A
+detection
+6 Reliable N/A 2.5 N/A
+transmission
+7 Ethernet N/A 2.6 N/A
+8 Wi-Fi, Bluetooth, N/A 2.7 N/A
+Cellular
+networks
+9 Quiz, Cloud N/A Page 57, 150 N/A
+computing,
+Internet of
+Things
+10 Switching N/A 3.1 N/A
+11 Switching N/A 3.1 N/A
+12 IP N/A 3.2.1-3.2.5 N/A
+13 Internetworking N/A 3.2.6-3.2.9, 9.3.1 N/A
+14 Mid-term exam N/A
+15 Routing, N/A 3.3.1-3.3.2 N/A
+distance vector
+routing
+16 Link state N/A 3.3.3-3.3.4 N/A
+routing, AODV,
+DSR, BATMAN
+17 BGP N/A 4.1.1-4.1.2, 3.4 N/A
+18 iBGP N/A
+19 Router design N/A 4.2 N/A
+20 Switching fabric, N/A 4.2 N/A
+lookup
+21 Transport layer, N/A 4.3 N/A
+UDP
+22 TCP N/A 4.4, 4.1.3 N/A
+23 Congestion N/A 5.1, 5.2 N/A
+control
+24 Congestion N/A 5.1, 5.2 N/A
+avoidance
+25 Quiz N/A 5.4 N/A
+26 Resource N/A 6.1, 6.2 N/A
+allocation,
+queuing
+27 Quality of N/A 6.3, 6.4
+service
+28 Security N/A 6.5
+29 Review
+30 Final exam
+
