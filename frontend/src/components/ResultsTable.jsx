@@ -22,19 +22,19 @@ export function ResultsTable({ data, title, icon: Icon, downloadUrl, onDownload 
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="overflow-x-auto max-h-[600px]">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-200 sticky top-0 bg-slate-50 z-10">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <thead className="bg-slate-50 text-slate-900 font-semibold sticky top-0 z-10">
                             <tr>
                                 {Object.keys(data[0] || {}).map((key) => (
-                                    <th key={key} className="px-6 py-4 whitespace-nowrap uppercase tracking-wider text-xs">{key}</th>
+                                    <th key={key} className="px-6 py-4 whitespace-nowrap uppercase tracking-wider text-xs border border-slate-300 bg-slate-100">{key}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody>
                             {data.map((row, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                <tr key={idx} className="hover:bg-slate-50 transition-colors">
                                     {Object.values(row).map((val, i) => (
-                                        <td key={i} className="px-6 py-4 min-w-[250px] whitespace-pre-wrap align-top text-slate-700">
+                                        <td key={i} className="px-6 py-4 min-w-[250px] whitespace-pre-wrap align-top text-slate-700 border border-slate-300">
                                             {val}
                                         </td>
                                     ))}

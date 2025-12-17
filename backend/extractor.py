@@ -33,6 +33,7 @@ def extract_session_table(pdf_path):
     """Extracts the session plan table using pdfplumber."""
     session_data = []
     headers_map = {}
+    table_started = False
     
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
@@ -41,13 +42,18 @@ def extract_session_table(pdf_path):
             for table in tables:
                 if not table: continue
                 
-                # Check if this is the session table by looking at the header
-                # We assume the first row is the header
+                # Check if this table has the header
+                # We assume the first row is the header if it contains keywords
                 header_row = [str(cell).lower().replace('\n', ' ') for cell in table[0] if cell]
                 header_str = " ".join(header_row)
                 
-                if "topic" in header_str and ("reading" in header_str or "activity" in header_str):
-                    # Found the session table
+                is_new_header = "topic" in header_str and ("reading" in header_str or "activity" in header_str)
+                
+                start_row_idx = 0
+                
+                if is_new_header:
+                    table_started = True
+                    headers_map = {} # Reset map for new table definition
                     # Map columns
                     for idx, col_name in enumerate(table[0]):
                         if not col_name: continue
@@ -58,33 +64,39 @@ def extract_session_table(pdf_path):
                         elif "activit" in c_name: headers_map[idx] = "ACTIVITIES"
                         elif "date" in c_name: headers_map[idx] = "IMPORTANT DATES"
                     
-                    # Process rows
-                    for row in table[1:]:
-                        # Check if it's a valid session row (starts with a number)
-                        if not row[0]: continue
+                    start_row_idx = 1 # Skip header
+                
+                # If we haven't found a header yet, and this doesn't look like one, skip
+                if not table_started:
+                    continue
+                    
+                # Process rows
+                for row in table[start_row_idx:]:
+                    # Check if it's a valid session row (starts with a number)
+                    if not row or not row[0]: continue
+                    
+                    session_num_str = str(row[0]).strip()
+                    # Remove trailing .0 if present
+                    if session_num_str.endswith('.0'): session_num_str = session_num_str[:-2]
+                    
+                    if not re.match(r'^\d+$', session_num_str):
+                        continue
                         
-                        session_num_str = str(row[0]).strip()
-                        # Remove trailing .0 if present
-                        if session_num_str.endswith('.0'): session_num_str = session_num_str[:-2]
-                        
-                        if not re.match(r'^\d+$', session_num_str):
-                            continue
-                            
-                        session_num = int(session_num_str)
-                        row_details = []
-                        
-                        for idx, cell in enumerate(row):
-                            if idx == 0: continue # Skip number
-                            if idx in headers_map and cell:
-                                clean_val = clean_text(cell)
-                                if clean_val and clean_val.lower() != 'nan' and clean_val.lower() != 'n/a':
-                                    row_details.append(f"{headers_map[idx]}: {clean_val}")
-                        
-                        if row_details:
-                            session_data.append({
-                                "Session": session_num,
-                                "Details": "\n".join(row_details)
-                            })
+                    session_num = int(session_num_str)
+                    row_details = []
+                    
+                    for idx, cell in enumerate(row):
+                        if idx == 0: continue # Skip number
+                        if idx in headers_map and cell:
+                            clean_val = clean_text(cell)
+                            if clean_val and clean_val.lower() != 'nan' and clean_val.lower() != 'n/a':
+                                row_details.append(f"{headers_map[idx]}: {clean_val}")
+                    
+                    if row_details:
+                        session_data.append({
+                            "Session": session_num,
+                            "Details": "\n".join(row_details)
+                        })
     return session_data
 
 def extract_data_from_pdf(pdf_path):
@@ -289,23 +301,31 @@ def extract_data_from_pdf(pdf_path):
 def append_to_excel(new_data_list, output_file):
     """
     Appends a list of data dictionaries to an Excel file.
+    Dynamically adds session columns as needed.
     """
     if not new_data_list:
         return
 
-    # Create DataFrame
+    # Create DataFrame from new data
     df = pd.DataFrame(new_data_list)
     
-    # Determine columns
-    cols = METADATA_FIELDS.copy()
-    
-    # Find max session across all new data
-    global_max_session = 0
+    # 1. Determine max session in NEW data
+    new_max_session = 0
     if 'Max_Session' in df.columns:
-        global_max_session = df['Max_Session'].max()
+        new_max_session = df['Max_Session'].max()
         df = df.drop(columns=['Max_Session'])
     
-    # If appending to existing file, check its max session too
+    # Also check actual columns in new data just in case
+    new_session_cols = [c for c in df.columns if c.startswith("Session ")]
+    if new_session_cols:
+        nums = [int(c.split(' ')[1]) for c in new_session_cols if c.split(' ')[1].isdigit()]
+        if nums:
+            new_max_session = max(new_max_session, max(nums))
+
+    # 2. Determine max session in EXISTING data (if file exists)
+    existing_max_session = 0
+    existing_df = pd.DataFrame()
+    
     if os.path.exists(output_file):
         try:
             existing_df = pd.read_excel(output_file)
@@ -313,37 +333,42 @@ def append_to_excel(new_data_list, output_file):
             if existing_session_cols:
                 nums = [int(c.split(' ')[1]) for c in existing_session_cols if c.split(' ')[1].isdigit()]
                 if nums:
-                    global_max_session = max(global_max_session, max(nums))
+                    existing_max_session = max(nums)
         except Exception as e:
             print(f"Warning: Could not read existing Excel: {e}")
 
-    # Create Session columns
+    # 3. Determine global max session
+    global_max_session = max(new_max_session, existing_max_session)
+
+    # 4. Construct final column list
+    final_cols = METADATA_FIELDS.copy()
     for i in range(1, int(global_max_session) + 1):
-        col_name = f'Session {i}'
-        if col_name not in cols:
-            cols.append(col_name)
+        final_cols.append(f'Session {i}')
     
-    # Ensure all columns exist
-    for col in cols:
+    # 5. Reindex and Concatenate
+    # Ensure new df has all columns
+    for col in final_cols:
         if col not in df.columns:
             df[col] = ""
-            
-    # Reindex
-    df = df.reindex(columns=cols)
+    df = df.reindex(columns=final_cols)
     
-    if os.path.exists(output_file):
-        try:
-            existing_df = pd.read_excel(output_file)
-            all_cols = list(dict.fromkeys(existing_df.columns.tolist() + cols))
-            existing_df = existing_df.reindex(columns=all_cols)
-            df = df.reindex(columns=all_cols)
-            final_df = pd.concat([existing_df, df], ignore_index=True)
-            final_df.to_excel(output_file, index=False)
-        except Exception as e:
-            print(f"Error appending to Excel: {e}. Saving as new file.")
-            df.to_excel(output_file, index=False)
+    if not existing_df.empty:
+        # Ensure existing df has all columns
+        for col in final_cols:
+            if col not in existing_df.columns:
+                existing_df[col] = ""
+        existing_df = existing_df.reindex(columns=final_cols)
+        
+        # Append
+        final_df = pd.concat([existing_df, df], ignore_index=True)
     else:
-        df.to_excel(output_file, index=False)
+        final_df = df
+
+    # Save
+    try:
+        final_df.to_excel(output_file, index=False)
+    except Exception as e:
+        print(f"Error saving Excel: {e}")
 
 def main():
     # Find PDF files
